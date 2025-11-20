@@ -157,7 +157,7 @@ const App = () => {
             animate={{ opacity: 1, y: 0, skewY: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
           >
-            <h2 className="font-mono text-purple-600 font-bold tracking-widest mb-4">LEVEL 99 DESIGNER</h2>
+            <h2 className="font-mono text-purple-600 font-bold tracking-widest mb-4">LEVEL 999 DESIGNER</h2>
           </motion.div>
 
           <div className="overflow-hidden">
