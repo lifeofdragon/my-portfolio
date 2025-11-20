@@ -399,7 +399,7 @@ const App = () => {
                  initial={{ opacity: 0, y: 50 }}
                  whileInView={{ opacity: 1, y: 0 }}
                  viewport={{ once: true }}
-                 className="text-3xl md:text-5xl font-bold leading-tight"
+                 className="text-3xl md:text-5xl font-bold leading-tight md:leading-normal"
                >
                  I don't just design websites; I build <span className="bg-lime-300 px-2 italic">digital playgrounds</span>. Combining raw aesthetics with fluid interactions.
                </motion.p>
