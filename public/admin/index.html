@@ -17,7 +17,56 @@
     .msg-box { text-align: center; }
   </style>
 
-  <!-- 2. 引入 Identity Widget -->
+  <!-- 2. 引入 Identity Widg<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Content Manager</title>
+  
+  <!-- 1. 关键：显式指定 config.yml 路径 -->
+  <link href="./config.yml" type="text/yaml" rel="cms-config-url">
+
+  <style>
+    /* 加载动画 */
+    body { margin: 0; background: #1e1e1e; color: #eee; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .loader { border: 4px solid #333; border-top: 4px solid #a3e635; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 20px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .msg-box { text-align: center; }
+  </style>
+
+  <!-- 2. 必须先引入 Identity Widget -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body>
+  <div class="msg-box" id="nc-root">
+    <div class="loader" style="margin: 0 auto 20px;"></div>
+    <h2>Loading CMS...</h2>
+    <p style="opacity: 0.6; font-size: 0.9em;">Connecting to Netlify Identity</p>
+  </div>
+
+  <!-- 3. 引入 Decap CMS -->
+  <script src="https://cdn.jsdelivr.net/npm/decap-cms@3.1.2/dist/decap-cms.min.js"></script>
+  
+  <!-- 4. 关键修复：注册 Bug 的解药 -->
+  <script>
+    // 当 Netlify Identity 加载完成后
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.on("init", user => {
+        // 如果当前没登录（比如刚点击邮件链接跳过来）
+        if (!user) {
+          // 监听“登录成功”事件
+          window.netlifyIdentity.on("login", () => {
+            // 登录成功后，强制刷新页面
+            // 这一步非常关键，它会让 CMS 重新加载并识别到刚才的登录状态，从而进入后台
+            document.location.reload();
+          });
+        }
+      });
+    }
+  </script>
+</body>
+</html>et -->
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
