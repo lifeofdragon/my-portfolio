@@ -1,29 +1,36 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- 1. 优先级最高的跳转守卫：一旦发现 Token，立即跳转，不加载后续任何内容 -->
-    <script>
-      if (window.location.hash.includes("invite_token=") || 
-          window.location.hash.includes("recovery_token=") || 
-          window.location.hash.includes("confirmation_token=")) {
-        // 保存当前的 Token
-        const token = window.location.hash;
-        // 立即清空页面内容，防止 React 渲染闪烁
-        document.documentElement.innerHTML = "Redirecting to Admin...";
-        // 强制跳转
-        window.location.href = "/admin/" + token;
-      }
-    </script>
-
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NEXUS | AvantGarde Portfolio</title>
     
-    <!-- 2. 只有在不跳转的时候，才加载这个插件 -->
+    <!-- 引入 Netlify Identity Widget -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
+    <!-- 1. 放在 body 第一行，确保 DOM 解析一开始就执行 -->
+    <script>
+      (function() {
+        // 获取完整的 Hash 值
+        const hash = window.location.hash;
+        
+        // 使用正则匹配，忽略 # 前后可能出现的斜杠
+        // 匹配 invite_token, recovery_token, confirmation_token
+        if (hash && /token=/.test(hash)) {
+          // 在控制台输出日志（方便调试）
+          console.log("Token detected, redirecting to admin...", hash);
+          
+          // 停止页面其他操作，显示跳转提示
+          document.body.innerHTML = '<div style="display:flex;height:100vh;justify-content:center;align-items:center;background:#000;color:#fff;font-family:sans-serif;"><h1>Redirecting to Admin...</h1></div>';
+          
+          // 使用 replace 强制跳转（不留历史记录，防止后退回来）
+          window.location.replace("/admin/" + hash);
+        }
+      })();
+    </script>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
