@@ -1,17 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, useSpring, useMotionValue, AnimatePresence } from 'framer-motion';
-import { Gamepad2, Menu, X, ArrowRight, Ghost, Code, Layers, Zap, ExternalLink } from 'lucide-react';
+import { Gamepad2, Menu, X, ArrowRight, Ghost, ExternalLink, Code, Layers, Zap, Terminal, Cpu, Globe } from 'lucide-react';
+import contentData from './data.json';
+
 
 /**
- * AvantGardePortfolio - 修复版 v3
- * 修复内容：
- * 1. 将所有组件移出 App 组件外部，防止因父组件状态更新（如鼠标悬停）导致的子组件销毁重建和动画重播。
- * 2. 通过 Props 传递 setCursorVariant 等状态控制函数。
+ * ==========================================
+ * 图标映射表 (Icon Map)
+ * ==========================================
  */
+const IconMap = {
+  Code: <Code size={40} />,
+  Layers: <Layers size={40} />,
+  Zap: <Zap size={40} />,
+  Terminal: <Terminal size={40} />,
+  Cpu: <Cpu size={40} />,
+  Globe: <Globe size={40} />,
+  Default: <Zap size={40} /> 
+};
 
-// ---------------- Components (Moved Outside) ----------------
+// 获取图标的辅助函数
+const getIcon = (iconName) => {
+  return IconMap[iconName] || IconMap.Default;
+};
 
-// 1. 自定义磁吸光标
+// ---------------- Components ----------------
+
 const CustomCursor = ({ cursorVariant, springX, springY }) => {
   return (
     <motion.div
@@ -30,7 +44,6 @@ const CustomCursor = ({ cursorVariant, springX, springY }) => {
   );
 };
 
-// 2. 噪点背景层
 const NoiseOverlay = () => (
   <div className="fixed inset-0 pointer-events-none z-[9998] opacity-[0.03] mix-blend-overlay"
     style={{
@@ -39,7 +52,6 @@ const NoiseOverlay = () => (
   />
 );
 
-// 3. 导航栏
 const Navbar = ({ setCursorVariant, setIsMenuOpen }) => (
   <motion.nav 
     initial={{ y: -100 }}
@@ -53,7 +65,7 @@ const Navbar = ({ setCursorVariant, setIsMenuOpen }) => (
       onMouseLeave={() => setCursorVariant("default")}
     >
       <Gamepad2 size={32} />
-      <span>NEXUS<span className="text-lime-400">.DEV</span></span>
+      <span>{contentData.navbar.logoText}<span className="text-lime-400">{contentData.navbar.logoAccent}</span></span>
     </div>
     <button 
       onClick={() => setIsMenuOpen(true)}
@@ -61,13 +73,12 @@ const Navbar = ({ setCursorVariant, setIsMenuOpen }) => (
       onMouseLeave={() => setCursorVariant("default")}
       className="group flex items-center gap-2 text-sm font-bold uppercase tracking-widest md:cursor-none cursor-pointer"
     >
-      <span className="hidden md:block group-hover:translate-x-1 transition-transform">Menu</span>
+      <span className="hidden md:block group-hover:translate-x-1 transition-transform">{contentData.navbar.menuText}</span>
       <Menu size={32} className="group-hover:rotate-90 transition-transform duration-300" />
     </button>
   </motion.nav>
 );
 
-// 4. 全屏菜单
 const FullScreenMenu = ({ isMenuOpen, setIsMenuOpen, setCursorVariant }) => (
   <AnimatePresence>
     {isMenuOpen && (
@@ -88,7 +99,7 @@ const FullScreenMenu = ({ isMenuOpen, setIsMenuOpen, setCursorVariant }) => (
         </button>
         
         <div className="flex flex-col items-start space-y-4">
-          {["Start Game", "Inventory", "Skill Tree", "Lore", "Contact"].map((item, i) => (
+          {contentData.menuItems.map((item, i) => (
             <motion.div
               key={item}
               initial={{ x: -100, opacity: 0, skewX: 20 }}
@@ -122,7 +133,6 @@ const FullScreenMenu = ({ isMenuOpen, setIsMenuOpen, setCursorVariant }) => (
   </AnimatePresence>
 );
 
-// 5. 英雄区域
 const HeroSection = ({ setCursorVariant }) => {
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 500], [0, 200]);
@@ -140,7 +150,7 @@ const HeroSection = ({ setCursorVariant }) => {
           animate={{ opacity: 1, y: 0, skewY: 0 }}
           transition={{ duration: 1, ease: "easeOut" }}
         >
-          <h2 className="font-mono text-purple-600 font-bold tracking-widest mb-4">LEVEL 99 DESIGNER</h2>
+          <h2 className="font-mono text-purple-600 font-bold tracking-widest mb-4">{contentData.hero.label}</h2>
         </motion.div>
 
         <div className="overflow-hidden">
@@ -150,7 +160,7 @@ const HeroSection = ({ setCursorVariant }) => {
             transition={{ duration: 1, delay: 0.2, ease: [0.76, 0, 0.24, 1] }}
             className="text-7xl md:text-[9rem] leading-[0.85] font-black uppercase tracking-tighter text-black mb-4"
           >
-            Crafting
+            {contentData.hero.titleLine1}
           </motion.h1>
         </div>
         
@@ -164,7 +174,7 @@ const HeroSection = ({ setCursorVariant }) => {
             onMouseLeave={() => setCursorVariant("default")}
             style={{ WebkitTextStroke: "3px black" }}
           >
-            Digital
+            {contentData.hero.titleLine2}
           </motion.h1>
         </div>
         
@@ -175,7 +185,7 @@ const HeroSection = ({ setCursorVariant }) => {
             transition={{ duration: 1, delay: 0.6, ease: [0.76, 0, 0.24, 1] }}
             className="text-7xl md:text-[9rem] leading-[0.85] font-black uppercase tracking-tighter text-black"
           >
-            Chaos
+            {contentData.hero.titleLine3}
           </motion.h1>
           <motion.div 
              initial={{ scale: 0 }}
@@ -193,14 +203,13 @@ const HeroSection = ({ setCursorVariant }) => {
         animate={{ y: [0, 10, 0] }}
         transition={{ repeat: Infinity, duration: 2 }}
       >
-        SCROLL TO PLAY
+        {contentData.hero.scrollText}
         <div className="w-[1px] h-12 bg-black/30" />
       </motion.div>
     </section>
   );
 };
 
-// 6. 跑马灯组件
 const Marquee = () => (
   <div className="w-full py-8 bg-black text-white overflow-hidden rotate-1 border-y-4 border-lime-400">
     <motion.div 
@@ -210,15 +219,18 @@ const Marquee = () => (
     >
       {[...Array(4)].map((_, i) => (
         <span key={i} className="mx-8 flex items-center gap-8">
-          User Interface <span className="text-lime-400">///</span> Game Feel <span className="text-purple-500">///</span> Motion Design <span className="text-lime-400">///</span>
+           {contentData.marquee.map((item, idx) => (
+             <React.Fragment key={idx}>
+               {item.text} <span className={item.color}>///</span>{" "}
+             </React.Fragment>
+           ))}
         </span>
       ))}
     </motion.div>
   </div>
 );
 
-// 7. 作品集卡片
-const ProjectCard = ({ title, cat, color, index, setCursorVariant }) => {
+const ProjectCard = ({ data, index, setCursorVariant }) => {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 100 }}
@@ -228,8 +240,9 @@ const ProjectCard = ({ title, cat, color, index, setCursorVariant }) => {
       className="group relative w-full aspect-[4/3] md:aspect-[16/9] bg-gray-100 border-2 border-black overflow-hidden md:cursor-none cursor-pointer"
       onMouseEnter={() => setCursorVariant("hover")}
       onMouseLeave={() => setCursorVariant("default")}
+      onClick={() => window.open(data.url, '_blank')}
     >
-      <div className={`absolute inset-0 ${color} transition-all duration-700 group-hover:scale-110 opacity-80`} />
+      <div className={`absolute inset-0 ${data.color} transition-all duration-700 group-hover:scale-110 opacity-80`} />
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagonal-stripes.png')] opacity-20" />
       
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-500 flex items-center justify-center opacity-0 group-hover:opacity-100">
@@ -240,8 +253,8 @@ const ProjectCard = ({ title, cat, color, index, setCursorVariant }) => {
 
       <div className="absolute bottom-0 left-0 w-full bg-white border-t-2 border-black p-4 flex justify-between items-end transform translate-y-0 group-hover:-translate-y-2 transition-transform duration-300">
         <div>
-          <div className="font-mono text-xs text-gray-500 mb-1 uppercase">{cat}</div>
-          <h3 className="text-2xl md:text-4xl font-black uppercase leading-none">{title}</h3>
+          <div className="font-mono text-xs text-gray-500 mb-1 uppercase">{data.category}</div>
+          <h3 className="text-2xl md:text-4xl font-black uppercase leading-none">{data.title}</h3>
         </div>
         <ArrowRight className="transform -rotate-45 group-hover:rotate-0 transition-transform duration-300" />
       </div>
@@ -249,7 +262,6 @@ const ProjectCard = ({ title, cat, color, index, setCursorVariant }) => {
   );
 };
 
-// 8. 技能树
 const SkillSection = () => {
   return (
     <section className="py-24 px-6 md:px-20 bg-white relative">
@@ -268,11 +280,7 @@ const SkillSection = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {[
-          { icon: <Code size={40}/>, title: "Dev Magic", desc: "React, Three.js, WebGL Shaders", color: "bg-lime-300" },
-          { icon: <Layers size={40}/>, title: "UI Architecture", desc: "Figma, Design Systems, Brutalism", color: "bg-purple-300" },
-          { icon: <Zap size={40}/>, title: "Game Juice", desc: "GSAP, Framer Motion, Unity", color: "bg-pink-300" }
-        ].map((skill, i) => (
+        {contentData.skills.map((skill, i) => (
           <motion.div
             key={i}
             initial={{ rotateX: 90, opacity: 0 }}
@@ -283,7 +291,7 @@ const SkillSection = () => {
             className={`p-8 border-2 border-black ${skill.color} flex flex-col gap-4 rounded-xl`}
           >
             <div className="bg-white w-16 h-16 border-2 border-black rounded-full flex items-center justify-center shadow-[4px_4px_0px_#000]">
-              {skill.icon}
+              {getIcon(skill.iconName)}
             </div>
             <h3 className="text-3xl font-black uppercase">{skill.title}</h3>
             <p className="font-mono font-bold text-sm">{skill.desc}</p>
@@ -294,7 +302,6 @@ const SkillSection = () => {
   );
 };
 
-// 9. 页脚
 const Footer = ({ setCursorVariant }) => {
   return (
     <footer className="bg-black text-white pt-20 pb-10 px-6 md:px-20 relative overflow-hidden">
@@ -303,44 +310,40 @@ const Footer = ({ setCursorVariant }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-20">
         <div>
            <h2 className="text-5xl md:text-7xl font-black uppercase leading-tight mb-8">
-             Ready to <br/>
-             <span className="text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-lime-200">Start Game?</span>
+             {contentData.footer.heading}
            </h2>
            <button 
              className="px-8 py-4 bg-white text-black font-bold text-xl uppercase tracking-widest hover:bg-lime-400 hover:scale-105 transition-all duration-300 flex items-center gap-2 md:cursor-none cursor-pointer"
              onMouseEnter={() => setCursorVariant("hover")}
              onMouseLeave={() => setCursorVariant("default")}
            >
-             Insert Coin <Gamepad2 />
+             {contentData.footer.btnText} <Gamepad2 />
            </button>
         </div>
         
         <div className="flex flex-col justify-end items-start md:items-end font-mono text-lg space-y-4">
-          <a href="#" className="hover:text-lime-400 transition-colors flex items-center gap-2">TWITTER <ExternalLink size={16}/></a>
-          <a href="#" className="hover:text-purple-400 transition-colors flex items-center gap-2">LINKEDIN <ExternalLink size={16}/></a>
-          <a href="#" className="hover:text-pink-400 transition-colors flex items-center gap-2">GITHUB <ExternalLink size={16}/></a>
+          {contentData.footer.socials.map((social, i) => (
+             <a key={i} href={social.url} className="hover:text-lime-400 transition-colors flex items-center gap-2" target="_blank" rel="noopener noreferrer">
+               {social.name} <ExternalLink size={16}/>
+             </a>
+          ))}
         </div>
       </div>
 
       <div className="border-t border-gray-800 pt-10 flex flex-col md:flex-row justify-between items-center font-mono text-xs text-gray-500">
-        <p>© 2024 NEXUS DESIGNS. ALL RIGHTS RESERVED.</p>
-        <p className="mt-2 md:mt-0">DESIGNED WITH CHAOS & CODE</p>
+        <p>{contentData.footer.copyright}</p>
+        <p className="mt-2 md:mt-0">{contentData.footer.tagline}</p>
       </div>
     </footer>
   );
 };
 
-// ---------------- Main App Component ----------------
-
 const App = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cursorVariant, setCursorVariant] = useState("default");
   
-  // 鼠标位置追踪
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  
-  // 平滑的鼠标弹簧动画
   const springX = useSpring(mouseX, { stiffness: 500, damping: 28 });
   const springY = useSpring(mouseY, { stiffness: 500, damping: 28 });
 
@@ -355,7 +358,6 @@ const App = () => {
 
   return (
     <div className="bg-white text-black min-h-screen font-sans md:cursor-none cursor-auto selection:bg-lime-400 selection:text-black overflow-x-hidden">
-      {/* 样式注入 */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Space+Grotesk:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap');
         body { font-family: 'Space Grotesk', sans-serif; }
@@ -376,7 +378,6 @@ const App = () => {
         <HeroSection setCursorVariant={setCursorVariant} />
         <Marquee />
 
-        {/* About Section */}
         <section className="py-32 px-6 md:px-20">
           <div className="flex flex-col md:flex-row gap-12 items-start">
              <motion.div 
@@ -385,12 +386,13 @@ const App = () => {
                viewport={{ once: true }}
                className="md:w-1/3 font-mono text-sm sticky top-32"
              >
-               [ PLAYER PROFILE ]
+               {contentData.about.title}
                <div className="mt-4 p-4 border border-black bg-gray-50">
-                 <p className="mb-2"><strong className="bg-black text-white px-1">CLASS:</strong> Creative Technologist</p>
-                 <p className="mb-2"><strong className="bg-black text-white px-1">STR:</strong> 92 (Visuals)</p>
-                 <p className="mb-2"><strong className="bg-black text-white px-1">INT:</strong> 98 (Code)</p>
-                 <p><strong className="bg-black text-white px-1">LUCK:</strong> 50 (RNG)</p>
+                 {contentData.about.stats.map((stat, i) => (
+                   <p key={i} className="mb-2">
+                     <strong className="bg-black text-white px-1">{stat.label}:</strong> {stat.value}
+                   </p>
+                 ))}
                </div>
              </motion.div>
 
@@ -400,24 +402,26 @@ const App = () => {
                  whileInView={{ opacity: 1, y: 0 }}
                  viewport={{ once: true }}
                  className="text-3xl md:text-5xl font-bold leading-tight md:leading-normal"
-               >
-                 I don't just design websites; I build <span className="bg-lime-300 px-2 italic">digital playgrounds</span>. Combining raw aesthetics with fluid interactions.
-               </motion.p>
+                 dangerouslySetInnerHTML={{ __html: contentData.about.manifesto }}
+               />
              </div>
           </div>
         </section>
 
-        {/* Projects Section */}
         <section className="px-6 md:px-20 pb-32">
            <div className="flex items-end justify-between mb-16 border-b-4 border-black pb-4">
               <h2 className="text-6xl md:text-9xl font-black uppercase tracking-tighter">Inventory</h2>
               <span className="font-mono font-bold text-xl hidden md:block animate-pulse">SELECT ITEM</span>
            </div>
            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-             <ProjectCard title="Neon Racer UI" cat="Game HUD / Interface" color="bg-purple-600" index={1} setCursorVariant={setCursorVariant} />
-             <ProjectCard title="Cyber Deck" cat="Web App / React" color="bg-lime-500" index={2} setCursorVariant={setCursorVariant} />
-             <ProjectCard title="Void Walker" cat="3D Experience / Three.js" color="bg-black" index={3} setCursorVariant={setCursorVariant} />
-             <ProjectCard title="Glitch Shop" cat="E-commerce / Brutalism" color="bg-pink-500" index={4} setCursorVariant={setCursorVariant} />
+             {contentData.projects.map((project, index) => (
+               <ProjectCard 
+                 key={index} 
+                 data={project} 
+                 index={index + 1} 
+                 setCursorVariant={setCursorVariant} 
+               />
+             ))}
            </div>
         </section>
 

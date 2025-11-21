@@ -1,0 +1,93 @@
+{
+    "navbar": {
+      "logoText": "NEXUS",
+      "logoAccent": ".DEV",
+      "menuText": "Menu"
+    },
+    "menuItems": [
+      "Start Game", 
+      "Inventory", 
+      "Skill Tree", 
+      "Lore", 
+      "Contact"
+    ],
+    "hero": {
+      "label": "LEVEL 100 DESIGNER",
+      "titleLine1": "Crafting",
+      "titleLine2": "Digital",
+      "titleLine3": "Chaos",
+      "scrollText": "SCROLL TO PLAY"
+    },
+    "marquee": [
+      { "text": "User Interface", "color": "text-lime-400" },
+      { "text": "Game Feel", "color": "text-purple-500" },
+      { "text": "Motion Design", "color": "text-lime-400" }
+    ],
+    "about": {
+      "title": "[ PLAYER PROFILE ]",
+      "stats": [
+        { "label": "CLASS", "value": "Creative Technologist" },
+        { "label": "STR", "value": "92 (Visuals)" },
+        { "label": "INT", "value": "98 (Code)" },
+        { "label": "LUCK", "value": "50 (RNG)" }
+      ],
+      "manifesto": "I don't just design websites; I build <span class='bg-lime-300 px-2 italic'>digital playgrounds</span>. Combining raw aesthetics with fluid interactions."
+    },
+    "projects": [
+      {
+        "title": "Neon Racer UI",
+        "category": "Game HUD / Interface",
+        "color": "bg-purple-600",
+        "url": "#"
+      },
+      {
+        "title": "Cyber Deck",
+        "category": "Web App / React",
+        "color": "bg-lime-500",
+        "url": "#"
+      },
+      {
+        "title": "Void Walker",
+        "category": "3D Experience / Three.js",
+        "color": "bg-black",
+        "url": "#"
+      },
+      {
+        "title": "Glitch Shop",
+        "category": "E-commerce / Brutalism",
+        "color": "bg-pink-500",
+        "url": "#"
+      }
+    ],
+    "skills": [
+      {
+        "title": "Dev Magic",
+        "desc": "React, Three.js, WebGL Shaders",
+        "color": "bg-lime-300",
+        "iconName": "Code"
+      },
+      {
+        "title": "UI Architecture",
+        "desc": "Figma, Design Systems, Brutalism",
+        "color": "bg-purple-300",
+        "iconName": "Layers"
+      },
+      {
+        "title": "Game Juice",
+        "desc": "GSAP, Framer Motion, Unity",
+        "color": "bg-pink-300",
+        "iconName": "Zap"
+      }
+    ],
+    "footer": {
+      "heading": "Ready to Start Game?",
+      "btnText": "Insert Coin",
+      "socials": [
+        { "name": "TWITTER", "url": "#" },
+        { "name": "LINKEDIN", "url": "#" },
+        { "name": "GITHUB", "url": "#" }
+      ],
+      "copyright": "© 2025 NEXUS DESIGNS. ALL RIGHTS RESERVED.",
+      "tagline": "DESIGNED WITH CHAOS & CODE"
+    }
+  }
