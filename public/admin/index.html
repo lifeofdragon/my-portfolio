@@ -6,59 +6,89 @@
   <title>Content Manager</title>
   <link href="./config.yml" type="text/yaml" rel="cms-config-url">
   
-  <!-- 1. 引入 Identity -->
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <style>
+    body { margin: 0; background: #1e1e1e; color: #eee; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .box { text-align: center; padding: 30px; background: #2d2d2d; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+    .error { color: #ff6b6b; margin-top: 10px; font-size: 0.9em; }
+    .hint { color: #888; font-size: 0.8em; margin-top: 5px; }
+  </style>
 </head>
 <body>
-  <!-- 状态显示 -->
-  <div id="status" style="padding: 50px; text-align: center; font-family: sans-serif;">
-    Loading...
+  <div id="status" class="box">
+    <h2>Loading...</h2>
+    <p style="opacity: 0.7">Waiting for Netlify Identity</p>
   </div>
 
+  <!-- 1. 定义主逻辑函数 (在脚本加载前定义) -->
   <script>
-    // 获取 hash
-    const hash = window.location.hash;
-    const isAuthFlow = hash.includes("token=");
-    
-    if (isAuthFlow) {
-      // === 模式 A：身份验证模式 ===
-      document.getElementById("status").innerText = "Detected Token. Processing Identity...";
-      console.log("Auth flow detected. CMS script will NOT be loaded.");
-
-      // Identity 插件会自动检测 URL hash 并尝试打开弹窗
-      // 我们只需要监听结果
+    function startApp() {
+      const statusEl = document.getElementById("status");
       
-      if (window.netlifyIdentity) {
-        // 确保 widget 已经打开
-        window.netlifyIdentity.on("init", () => {
-           // 强制打开弹窗（双重保险）
-           window.netlifyIdentity.open(); 
-        });
-
-        window.netlifyIdentity.on("login", () => {
-          document.getElementById("status").innerText = "Success! Redirecting...";
-          window.location.href = "/admin/"; // 登录成功，跳回纯净的 admin 页
-        });
+      // 再次检查对象是否存在
+      if (!window.netlifyIdentity) {
+        statusEl.innerHTML = `
+          <h2 style="color: #ff6b6b">Script Load Error</h2>
+          <p>Netlify Identity object is missing.</p>
+          <p class="hint">Please disable AdBlockers and refresh.</p>
+        `;
+        return;
       }
 
-    } else {
-      // === 模式 B：CMS 模式 ===
-      document.getElementById("status").style.display = 'none';
+      const hash = window.location.hash;
+      const isAuthFlow = hash.includes("token=");
       
-      // 动态加载 CMS
-      const script = document.createElement('script');
-      script.src = "https://cdn.jsdelivr.net/npm/decap-cms@3.1.2/dist/decap-cms.min.js";
-      document.body.appendChild(script);
-      
-      // 常规登录监听
-      if (window.netlifyIdentity) {
+      if (isAuthFlow) {
+        // === 模式 A：身份验证流程 ===
+        statusEl.innerHTML = "<h2>Verifying Token...</h2><p>Popup should open automatically.</p>";
+        console.log("Auth flow detected. Attempting to open widget...");
+
+        // 强制打开窗口
+        window.netlifyIdentity.open();
+        
+        // 监听登录成功
+        window.netlifyIdentity.on("login", () => {
+          statusEl.innerHTML = "<h2>Success!</h2><p>Redirecting to Admin...</p>";
+          window.location.href = "/admin/"; 
+        });
+
+      } else {
+        // === 模式 B：正常 CMS 流程 ===
+        statusEl.style.display = 'none';
+        
+        // 动态加载 CMS
+        const script = document.createElement('script');
+        script.src = "https://cdn.jsdelivr.net/npm/decap-cms@3.1.2/dist/decap-cms.min.js";
+        document.body.appendChild(script);
+        
+        // 初始化 Identity
+        window.netlifyIdentity.init(); // 重要：手动初始化一次
+
+        // 监听常规登录
         window.netlifyIdentity.on("init", user => {
           if (!user) {
-            window.netlifyIdentity.on("login", () => { document.location.reload(); });
+            window.netlifyIdentity.on("login", () => { 
+              document.location.reload(); 
+            });
           }
         });
       }
     }
+
+    function handleScriptError() {
+      document.getElementById("status").innerHTML = `
+        <h2 style="color: #ff6b6b">Connection Failed</h2>
+        <p class="error">Could not load Netlify Identity script.</p>
+        <p class="hint">1. Check your internet connection.<br>2. <strong>Disable AdBlock / uBlock Origin</strong>.<br>3. Try Incognito Mode.</p>
+      `;
+    }
+  </script>
+
+  <!-- 2. 引入脚本并绑定 onload 事件 -->
+  <!-- 关键：只有当脚本成功加载后，才会调用 startApp -->
+  <script 
+    src="https://identity.netlify.com/v1/netlify-identity-widget.js" 
+    onload="startApp()" 
+    onerror="handleScriptError()">
   </script>
 </body>
 </html>
