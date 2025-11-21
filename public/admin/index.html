@@ -1,32 +1,30 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- 1. 优先级最高的跳转守卫：一旦发现 Token，立即跳转，不加载后续任何内容 -->
+    <script>
+      if (window.location.hash.includes("invite_token=") || 
+          window.location.hash.includes("recovery_token=") || 
+          window.location.hash.includes("confirmation_token=")) {
+        // 保存当前的 Token
+        const token = window.location.hash;
+        // 立即清空页面内容，防止 React 渲染闪烁
+        document.documentElement.innerHTML = "Redirecting to Admin...";
+        // 强制跳转
+        window.location.href = "/admin/" + token;
+      }
+    </script>
+
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NEXUS | AvantGarde Portfolio</title>
     
-    <!-- 1. 引入 Netlify Identity Widget 脚本 -->
+    <!-- 2. 只有在不跳转的时候，才加载这个插件 -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-
-    <!-- 2. 关键修复：补全所有类型的令牌检测 -->
-    <script>
-      // 获取当前 URL 的 hash 部分
-      const hash = window.location.hash;
-
-      // 检查是否包含 Netlify Identity 的任何一种令牌
-      // confirmation_token = 注册确认
-      // invite_token = 邀请链接
-      // recovery_token = 找回密码
-      if (hash.includes("invite_token=") || hash.includes("recovery_token=") || hash.includes("confirmation_token=")) {
-        
-        // 立即带着令牌跳转到 admin 页面
-        window.location.href = "/admin/" + hash;
-      }
-    </script>
   </body>
 </html>
