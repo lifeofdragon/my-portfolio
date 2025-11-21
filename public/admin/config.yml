@@ -1,0 +1,108 @@
+backend:
+  name: git-gateway
+  branch: main # 确保这跟你的 GitHub 分支名一致
+
+media_folder: "public/images" # 图片上传位置
+public_folder: "/images" # 图片引用路径
+
+# 必须配置：本地测试时避免报错
+local_backend: true
+
+collections:
+  - name: "pages"
+    label: "页面内容"
+    files:
+      - file: "src/data.json" # CMS 要修改的那个文件
+        label: "首页配置"
+        name: "home"
+        fields:
+          # 1. 导航栏配置
+          - label: "导航栏 (Navbar)"
+            name: "navbar"
+            widget: "object"
+            fields:
+              - {label: "Logo文字", name: "logoText", widget: "string"}
+              - {label: "Logo高亮后缀", name: "logoAccent", widget: "string"}
+              - {label: "菜单按钮文字", name: "menuText", widget: "string"}
+          
+          # 2. 英雄区域配置
+          - label: "英雄区域 (Hero)"
+            name: "hero"
+            widget: "object"
+            fields:
+              - {label: "顶部标签", name: "label", widget: "string"}
+              - {label: "第一行标题", name: "titleLine1", widget: "string"}
+              - {label: "第二行标题", name: "titleLine2", widget: "string"}
+              - {label: "第三行标题", name: "titleLine3", widget: "string"}
+              - {label: "滚动提示", name: "scrollText", widget: "string"}
+
+          # 3. 跑马灯
+          - label: "跑马灯文字 (Marquee)"
+            name: "marquee"
+            widget: "list"
+            fields:
+              - {label: "文字内容", name: "text", widget: "string"}
+              - {label: "文字颜色类名", name: "color", widget: "select", options: ["text-lime-400", "text-purple-500", "text-pink-500", "text-white"]}
+
+          # 4. 个人简介
+          - label: "个人简介 (About)"
+            name: "about"
+            widget: "object"
+            fields:
+              - {label: "标题", name: "title", widget: "string"}
+              - label: "属性面板 (Stats)"
+                name: "stats"
+                widget: "list"
+                fields:
+                  - {label: "属性名", name: "label", widget: "string"}
+                  - {label: "属性值", name: "value", widget: "string"}
+              - label: "个人宣言 (Manifesto)"
+                name: "manifesto"
+                widget: "text"
+                hint: "支持 HTML 标签，例如 <span class='bg-lime-300'>...</span>"
+
+          # 5. 项目列表 (重头戏！)
+          - label: "项目清单 (Inventory)"
+            name: "projects"
+            widget: "list"
+            collapsed: false
+            fields:
+              - {label: "项目标题", name: "title", widget: "string"}
+              - {label: "项目类别", name: "category", widget: "string"}
+              - {label: "链接 URL", name: "url", widget: "string", default: "#"}
+              - label: "背景颜色"
+                name: "color"
+                widget: "select"
+                options: 
+                  - {label: "Neon Purple", value: "bg-purple-600"}
+                  - {label: "Acid Lime", value: "bg-lime-500"}
+                  - {label: "Deep Black", value: "bg-black"}
+                  - {label: "Hot Pink", value: "bg-pink-500"}
+
+          # 6. 技能树
+          - label: "技能树 (Skills)"
+            name: "skills"
+            widget: "list"
+            fields:
+              - {label: "技能名称", name: "title", widget: "string"}
+              - {label: "描述", name: "desc", widget: "string"}
+              - label: "图标"
+                name: "iconName"
+                widget: "select"
+                options: ["Code", "Layers", "Zap", "Terminal", "Cpu", "Globe"]
+              - {label: "边框颜色", name: "color", widget: "string"}
+
+          # 7. 页脚
+          - label: "页脚 (Footer)"
+            name: "footer"
+            widget: "object"
+            fields:
+              - {label: "大标题", name: "heading", widget: "string"}
+              - {label: "按钮文字", name: "btnText", widget: "string"}
+              - {label: "版权信息", name: "copyright", widget: "string"}
+              - label: "社交链接"
+                name: "socials"
+                widget: "list"
+                fields:
+                  - {label: "平台名称", name: "name", widget: "string"}
+                  - {label: "链接", name: "url", widget: "string"}
