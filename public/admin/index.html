@@ -1,26 +1,18 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NEXUS | AvantGarde Portfolio</title>
-    
-    <!-- 1. 引入 Netlify Identity Widget 脚本 -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Content Manager</title>
+  
+  <!-- 关键修复：显式指定配置文件路径，解决 Failed to load config.yml 错误 -->
+  <link href="./config.yml" type="text/yaml" rel="cms-config-url">
 
-    <!-- 2. 关键修复：添加自动重定向脚本 -->
-    <script>
-      // 检查 URL 里是否包含 Netlify 的邀请令牌或恢复令牌
-      if (window.location.hash.includes("invite_token=") || window.location.hash.includes("recovery_token=")) {
-        // 如果有，保留令牌信息，直接跳转到 admin 页面
-        // admin 页面会自动识别这个令牌并弹出密码设置框
-        window.location.href = "/admin/" + window.location.hash;
-      }
-    </script>
-  </body>
+  <!-- 引入 Netlify Identity Widget 用于登录 -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body>
+  <!-- 引入 Decap CMS 脚本 -->
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+</body>
 </html>
