@@ -1,37 +1,47 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NEXUS | AvantGarde Portfolio</title>
-    
-    <!-- 引入 Netlify Identity Widget -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  </head>
-  <body>
-    <!-- 1. 放在 body 第一行，确保 DOM 解析一开始就执行 -->
-    <script>
-      (function() {
-        // 获取完整的 Hash 值
-        const hash = window.location.hash;
-        
-        // 使用正则匹配，忽略 # 前后可能出现的斜杠
-        // 匹配 invite_token, recovery_token, confirmation_token
-        if (hash && /token=/.test(hash)) {
-          // 在控制台输出日志（方便调试）
-          console.log("Token detected, redirecting to admin...", hash);
-          
-          // 停止页面其他操作，显示跳转提示
-          document.body.innerHTML = '<div style="display:flex;height:100vh;justify-content:center;align-items:center;background:#000;color:#fff;font-family:sans-serif;"><h1>Redirecting to Admin...</h1></div>';
-          
-          // 使用 replace 强制跳转（不留历史记录，防止后退回来）
-          window.location.replace("/admin/" + hash);
-        }
-      })();
-    </script>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Content Manager</title>
+  
+  <!-- 1. 关键：显式指定配置文件路径 -->
+  <!-- 这告诉 CMS 去加载当前目录下的 config.yml 文件 -->
+  <link href="./config.yml" type="text/yaml" rel="cms-config-url">
 
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+  <style>
+    /* 简单的加载动画样式 */
+    body { margin: 0; background: #1e1e1e; color: #eee; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .loader { border: 4px solid #333; border-top: 4px solid #a3e635; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 20px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .msg-box { text-align: center; }
+  </style>
+
+  <!-- 2. 引入 Identity Widget -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body>
+  <!-- 加载提示 -->
+  <div class="msg-box" id="nc-root">
+    <div class="loader" style="margin: 0 auto 20px;"></div>
+    <h2>Loading CMS...</h2>
+    <p style="opacity: 0.6; font-size: 0.9em;">Connecting to Netlify Identity</p>
+  </div>
+
+  <!-- 3. 引入 Decap CMS -->
+  <script src="https://cdn.jsdelivr.net/npm/decap-cms@3.1.2/dist/decap-cms.min.js"></script>
+  
+  <script>
+    // 注册 Identity 事件，确保登录后自动刷新
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.on("init", user => {
+        if (!user) {
+          window.netlifyIdentity.on("login", () => {
+            document.location.reload();
+          });
+        }
+      });
+    }
+  </script>
+</body>
 </html>
