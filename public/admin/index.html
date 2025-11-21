@@ -5,67 +5,105 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Content Manager</title>
   
-  <!-- 引入配置文件 -->
+  <!-- 引用配置文件 -->
   <link href="./config.yml" type="text/yaml" rel="cms-config-url">
 
-  <!-- 1. 必须先引入 Identity Widget -->
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  
   <style>
-    body { margin: 0; background: #1e1e1e; color: #eee; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    body { margin: 0; background: #1e1e1e; color: #eee; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; }
     .loader { border: 4px solid #333; border-top: 4px solid #a3e635; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 20px; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .msg-box { text-align: center; }
-    .hidden { display: none; }
+    .msg-box { text-align: center; padding: 40px; background: #2a2a2a; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); max-width: 400px; }
+    
+    /* 成功按钮样式 */
+    .btn-success {
+      background: #a3e635; color: #000; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 20px; text-decoration: none; display: inline-block;
+    }
+    .btn-success:hover { background: #84cc16; }
+    .hidden { display: none !important; }
   </style>
+
+  <!-- 1. 引入 Identity Widget -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
-  <!-- 容器保持为空 -->
-  <div id="nc-root"></div>
 
-  <!-- 加载提示 -->
-  <div id="loading-msg" class="msg-box">
-    <div class="loader" style="margin: 0 auto 20px;"></div>
-    <h2 id="status-text">Verifying Identity...</h2>
+  <!-- 状态容器 -->
+  <div id="status-container" class="msg-box">
+    <div class="loader" id="spinner"></div>
+    <h2 id="status-title">Checking Identity...</h2>
+    <p id="status-desc" style="opacity: 0.7;">Please wait...</p>
+    
+    <!-- 手动进入按钮 (默认隐藏) -->
+    <a href="/admin/" id="enter-btn" class="hidden btn-success">Enter CMS Dashboard →</a>
   </div>
 
-  <script>
-    // 2. 核心修复逻辑：红绿灯
-    // 检查 URL 里是否有 token
-    const hash = window.location.hash;
-    const hasToken = hash.includes("invite_token=") || hash.includes("recovery_token=") || hash.includes("confirmation_token=");
+  <!-- 挂载点 -->
+  <div id="nc-root"></div>
 
-    if (hasToken) {
-      // === 情况 A：正在注册/确认中 ===
-      // 此时绝对不要加载 CMS，否则会把 token 吃掉
-      document.getElementById("status-text").innerText = "Completing Registration...";
+  <script>
+    // ---------------------------------------------------------
+    // 核心逻辑：分离注册流程与 CMS 加载流程
+    // ---------------------------------------------------------
+    
+    const hash = window.location.hash;
+    // 检测 URL 是否包含 Netlify Identity 的令牌
+    const isRegistrationFlow = hash.includes("invite_token=") || hash.includes("recovery_token=") || hash.includes("confirmation_token=");
+
+    const titleEl = document.getElementById("status-title");
+    const descEl = document.getElementById("status-desc");
+    const spinnerEl = document.getElementById("spinner");
+    const btnEl = document.getElementById("enter-btn");
+    const containerEl = document.getElementById("status-container");
+
+    if (isRegistrationFlow) {
+      // === 场景 A：正在注册/确认 ===
+      // 绝对不要加载 CMS 脚本，防止冲突
       
-      // Identity Widget 会自动检测到 hash 里的 token 并弹出窗口
-      // 我们只需要监听 "登录成功" 事件即可
+      titleEl.innerText = "Complete Registration";
+      descEl.innerText = "Please set your password in the popup window.";
+      
+      // 确保 Identity 组件初始化
       if (window.netlifyIdentity) {
-        window.netlifyIdentity.on("login", () => {
-          // 注册并登录完成后，移除 hash（去掉 token），刷新页面
-          // 刷新后就会进入“情况 B”
-          window.location.replace("/admin/");
+        // 监听登录成功事件
+        window.netlifyIdentity.on("login", (user) => {
+          // 注册/登录成功！
+          // 关键改变：不自动刷新，而是显示按钮让用户手动点
+          // 这样能防止弹窗还没处理完就被页面刷新打断
+          spinnerEl.classList.add("hidden");
+          titleEl.innerText = "Registration Successful!";
+          descEl.innerText = "Welcome, " + (user.user_metadata.full_name || user.email);
+          btnEl.classList.remove("hidden"); // 显示“进入后台”按钮
+          
+          // 关闭可能还开着的弹窗
+          window.netlifyIdentity.close();
+        });
+        
+        // 监听错误
+        window.netlifyIdentity.on("error", err => {
+          titleEl.innerText = "Error";
+          descEl.innerText = err.message;
         });
       }
-      
+
     } else {
-      // === 情况 B：正常访问 ===
-      // 没有 token，说明是正常登录或者已经注册完了
-      // 这时候才动态加载 CMS 脚本
+      // === 场景 B：正常访问后台 ===
+      // 只有在没有令牌的情况下，才加载 CMS
       
-      document.getElementById("status-text").innerText = "Loading CMS...";
+      titleEl.innerText = "Loading CMS...";
+      descEl.innerText = "Connecting to content database...";
       
+      // 动态加载 CMS 脚本
       const script = document.createElement('script');
       script.src = "https://cdn.jsdelivr.net/npm/decap-cms@3.1.2/dist/decap-cms.min.js";
+      
       script.onload = function() {
-        // CMS 加载后，隐藏我们的加载提示
-        document.getElementById("loading-msg").style.display = "none";
+        // CMS 加载成功后，隐藏我们的加载提示，把舞台交给 CMS
+        containerEl.classList.add("hidden");
       };
+      
       document.body.appendChild(script);
-
-      // 依然保留登录监听，防止 session 过期
+      
+      // 正常登录状态下的自动刷新逻辑
       if (window.netlifyIdentity) {
         window.netlifyIdentity.on("init", user => {
           if (!user) {
