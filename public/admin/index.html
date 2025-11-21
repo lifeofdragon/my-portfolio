@@ -14,5 +14,23 @@
 <body>
   <!-- 引入 Decap CMS 脚本 -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+
+    <!-- 2. 关键修复：补全所有类型的令牌检测 -->
+    <script>
+      // 获取当前 URL 的 hash 部分
+      const hash = window.location.hash;
+
+      // 检查是否包含 Netlify Identity 的任何一种令牌
+      // confirmation_token = 注册确认
+      // invite_token = 邀请链接
+      // recovery_token = 找回密码
+      if (hash.includes("invite_token=") || hash.includes("recovery_token=") || hash.includes("confirmation_token=")) {
+        
+        // 立即带着令牌跳转到 admin 页面
+        window.location.href = "/admin/" + hash;
+      }
+    </script>
 </body>
 </html>
